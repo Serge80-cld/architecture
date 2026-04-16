@@ -4,6 +4,19 @@
 ![Entra ID](https://img.shields.io/badge/Entra%20ID-Identity-orange)
 ![PowerShell](https://img.shields.io/badge/PowerShell-Automation-lightblue)
 ![Security](https://img.shields.io/badge/Security-WUfB%20%7C%20Defender-red)
+# 📑 Sommaire
+- [Modules](#modules)
+- [Laboratoires](#laboratoires)
+- [Scripts](#scripts)
+- [Diagrammes](#diagrammes)
+- [Architecture Modern Workplace](#architecture-modern-workplace)
+- [Contact](#contact)
+- ## 📬 Contact
+
+🔗 LinkedIn : https://www.linkedin.com/in/serge-ngindu/  
+📂 Portfolio GitHub : https://github.com/Serge80-cld  
+
+
 
 
 Ce dépôt contient un **bootcamp complet Modern Workplace**, conçu pour reproduire le travail d’un consultant Workplace / Cloud Engineer en environnement grand compte.
