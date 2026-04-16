@@ -1,0 +1,14 @@
+flowchart LR
+    A[MECM On-Prem] -->|Client| C[Device Windows]
+    B[Intune Cloud] -->|MDM| C
+    C -->|CMG| A
+    C -->|Policies| B
+
+    subgraph Workloads
+        W1[Compliance]
+        W2[Device Config]
+        W3[Windows Update]
+        W4[Endpoint Protection]
+    end
+
+    B --> Workloads
