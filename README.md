@@ -1,4 +1,10 @@
 # 🚀 Modern Workplace Bootcamp — Intune, Autopilot, Security & Co-management
+![Intune](https://img.shields.io/badge/Intune-Modern%20Workplace-blue)
+![Autopilot](https://img.shields.io/badge/Autopilot-Zero%20Touch-green)
+![Entra ID](https://img.shields.io/badge/Entra%20ID-Identity-orange)
+![PowerShell](https://img.shields.io/badge/PowerShell-Automation-lightblue)
+![Security](https://img.shields.io/badge/Security-WUfB%20%7C%20Defender-red)
+
 
 Ce dépôt contient un **bootcamp complet Modern Workplace**, conçu pour reproduire le travail d’un consultant Workplace / Cloud Engineer en environnement grand compte.
 
