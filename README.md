@@ -1,602 +1,150 @@
-<<<<<<< HEAD
-\# Architecture Modern Workplace – Bootcamp Ingénieur Workplace
-
-
-
-\## 1. Contexte et enjeux
-
-
-
-Les usages ont basculé vers un modèle :
-
-\- Utilisateurs distribués (télétravail, mobilité, prestataires).
-
-\- Postes hétérogènes (Windows, macOS, BYOD parfois).
-
-\- Exposition massive aux risques (ransomware, fuite de données, shadow IT).
-
-
-
-L’objectif de cette architecture est de définir une \*\*plateforme de gestion des terminaux moderne et hybride\*\*, capable de :
-
-\- Gérer le cycle de vie complet des postes (onboarding → exploitation → maintenance → offboarding).
-
-\- Supporter la \*\*coexistence MECM/SCCM + Intune\*\*.
-
-\- Appliquer des \*\*contrôles de sécurité Zero Trust\*\* sans dégrader l’expérience utilisateur.
-
-
-
-Ce document sert de \*\*référence d’architecture\*\* pour le bootcamp et pour les labs associés.
-
-
-
-\---
-
-
-
-\## 2. Objectifs d’architecture
-
-
-
-\*\*Objectifs techniques :\*\*
-
-\- Unifier la gestion des terminaux Windows et macOS via MDM (Intune) et MECM.
-
-\- Standardiser le poste de travail (version OS, configuration, sécurité).
-
-\- Industrialiser le déploiement (Autopilot, séquences MECM, profils MDM).
-
-\- Centraliser la gestion des mises à jour et correctifs de sécurité.
-
-
-
-\*\*Objectifs métier :\*\*
-
-\- Réduire le time-to-serve d’un nouveau collaborateur.
-
-\- Réduire les incidents liés au poste de travail (config, patch, applicatif).
-
-\- Améliorer la posture de sécurité (chiffrement, durcissement, conformité).
-
-\- Donner de la visibilité au management (indicateurs de conformité, patching, vulnérabilités).
-
-
-
-\---
-
-
-
-\## 3. Périmètre et hypothèses
-
-
-
-\*\*Périmètre :\*\*
-
-\- Postes \*\*Windows 10/11\*\* et \*\*macOS\*\* d’entreprise.
-
-\- Environnement \*\*hybride\*\* : AD DS on-prem + Microsoft Entra ID.
-
-\- Outils de gestion :
-
-&#x20; - \*\*Microsoft Intune\*\* (MDM/MAM, compliance, configuration, apps, updates).
-
-&#x20; - \*\*MECM/SCCM\*\* (applications, OS, updates, reporting, CMG éventuel).
-
-\- Services de sécurité Microsoft 365 (Defender, Conditional Access, baselines).
-
-
-
-\*\*Hors périmètre (pour ce bootcamp) :\*\*
-
-\- Gestion détaillée des mobiles (iOS/Android).
-
-\- Intégration profonde avec SIEM/SOAR.
-
-\- Scénarios multi-tenant complexes.
-
-
-
-\*\*Hypothèses :\*\*
-
-\- Licences M365 E3/E5 ou équivalent (Intune, Entra ID P1/P2).
-
-\- AD DS existant, synchronisé avec Entra ID.
-
-\- Accès Internet des postes aux endpoints Microsoft (Intune, Autopilot, WUfB, etc.).
-
-
-
-\---
-
-
-
-\## 4. Principes de design
-
-
-
-\*\*4.1 Identity-first \& Zero Trust\*\*
-
-
-
-\- L’\*\*identité\*\* (utilisateur + device) est le point de contrôle principal.
-
-\- Accès conditionnel basé sur :
-
-&#x20; - Identité (MFA, risque).
-
-&#x20; - Conformité du device.
-
-&#x20; - Localisation / contexte.
-
-
-
-\*\*4.2 Cloud-first, hybride pragmatique\*\*
-
-
-
-\- Intune est la \*\*cible\*\* pour la gestion moderne.
-
-\- MECM est conservé pour :
-
-&#x20; - Scénarios on-prem lourds.
-
-&#x20; - Migration progressive (co-management).
-
-\- Coexistence organisée, pas de “double pilotage sauvage”.
-
-
-
-\*\*4.3 Standardisation \& industrialisation\*\*
-
-
-
-\- Standards OS (versions supportées, build cible).
-
-\- Standards de configuration (profils, baselines).
-
-\- Standards de packaging (naming, détection, logs).
-
-\- Automatisation via scripts (PowerShell) et pipelines là où pertinent.
-
-
-
-\*\*4.4 Sécurité by design\*\*
-
-
-
-\- Chiffrement systématique (BitLocker / FileVault).
-
-\- Durcissement via baselines de sécurité.
-
-\- Gestion centralisée des mises à jour et correctifs.
-
-\- Principe du moindre privilège (RBAC, scopes Intune/MECM).
-
-
-
-\---
-
-
-
-\## 5. Architecture cible
-
-
-
-\### 5.1 Composants principaux
-
-
-
-\*\*On-premises :\*\*
-
-\- AD DS (domain controllers, DNS).
-
-\- MECM/SCCM (site server, DB, distribution points, éventuellement CMG).
-
-\- PKI interne (si nécessaire pour certifs Wi-Fi/VPN).
-
-
-
-\*\*Cloud :\*\*
-
-\- Microsoft Entra ID (identités, Conditional Access).
-
-\- Intune (MDM/MAM, policies, apps, updates).
-
-\- Autopilot (enrôlement et provisioning).
-
-\- Defender (AV, EDR, vulnérabilités).
-
-
-
-\### 5.2 Vue logique
-
-
-
-\- \*\*Plan identité :\*\*
-
-&#x20; - Utilisateurs et devices synchronisés AD → Entra ID.
-
-&#x20; - Devices en \*\*Hybrid Join\*\* ou \*\*Entra Join\*\* selon scénario.
-
-\- \*\*Plan gestion :\*\*
-
-&#x20; - Devices Windows co-gérés (MECM + Intune) ou full Intune.
-
-&#x20; - Devices macOS gérés via Intune.
-
-\- \*\*Plan sécurité :\*\*
-
-&#x20; - Conditional Access sur les apps cloud.
-
-&#x20; - Compliance policies comme prérequis d’accès.
-
-&#x20; - Baselines de sécurité appliquées par OS.
-
-
-
-\*(Un diagramme logique sera ajouté dans `diagrams/architecture.mmd`.)\*
-
-
-
-\---
-
-
-
-\## 6. Flux clés
-
-
-
-\*\*6.1 Onboarding d’un poste Windows\*\*
-
-
-
-1\. Achat / préparation du device (OEM ou réaffectation).
-
-2\. Enregistrement dans Autopilot (hash, group tag).
-
-3\. Utilisateur démarre le poste → OOBE → Entra ID + Autopilot.
-
-4\. Enrôlement Intune, application des profils (config, compliance, apps).
-
-5\. Si co-management : client MECM présent ou déployé, workloads basculés progressivement.
-
-
-
-\*\*6.2 Onboarding d’un poste macOS\*\*
-
-
-
-1\. Enregistrement dans Intune (Apple Business Manager si dispo).
-
-2\. Enrôlement MDM, application des profils (FileVault, Wi-Fi, VPN, apps).
-
-3\. Application des politiques de conformité et de sécurité.
-
-
-
-\*\*6.3 Gestion des mises à jour\*\*
-
-
-
-\- Windows : Windows Update for Business (rings) + éventuellement MECM Software Updates.
-
-\- macOS : policies Intune + mécanismes natifs Apple.
-
-\- Pilotage via groupes pilotes → élargissement progressif.
-
-
-
-\*\*6.4 Offboarding\*\*
-
-
-
-1\. Désactivation du compte utilisateur.
-
-2\. Wipe/Retire du device via Intune.
-
-3\. Réaffectation ou sortie de parc (effacement sécurisé).
-
-
-
-\---
-
-
-
-\## 7. Gouvernance et responsabilités
-
-
-
-\*\*Rôles typiques :\*\*
-
-\- \*\*Équipe Workplace / Endpoint\*\* : design, configuration Intune/MECM, packaging, patching.
-
-\- \*\*Équipe Identité / AD / Entra\*\* : synchronisation, Conditional Access, RBAC.
-
-\- \*\*Équipe Sécurité\*\* : baselines, durcissement, validation des politiques.
-
-\- \*\*Équipe Réseau\*\* : proxy, accès aux endpoints cloud, QoS/DO.
-
-
-
-Une matrice RACI simplifiée sera documentée dans `docs/01-architecture/raci.md`.
-
-
-
-\---
-
-
-
-\## 8. Roadmap de mise en œuvre (vue bootcamp)
-
-
-
-\*\*Phase 0 – Préparation\*\*
-
-\- Clarifier périmètre, licences, prérequis réseau.
-
-\- Standardiser les versions OS cibles.
-
-
-
-\*\*Phase 1 – Fondations\*\*
-
-\- AD + Entra ID + synchronisation.
-
-\- Intune configuré (RBAC, scopes, groupes).
-
-\- MECM prêt pour co-management (si utilisé).
-
-
-
-\*\*Phase 2 – Pilotes\*\*
-
-\- Pilote Autopilot sur un petit périmètre.
-
-\- Pilote co-management (workloads ciblés).
-
-\- Pilote WUfB / updates.
-
-
-
-\*\*Phase 3 – Généralisation\*\*
-
-\- Extension progressive des workloads Intune.
-
-\- Réduction de la dépendance MECM si c’est l’objectif.
-
-\- Stabilisation, documentation, runbooks.
-
-
-
-\---
-
-
-
-\## 9. Lien avec les labs du bootcamp
-
-
-
-Chaque module du bootcamp s’appuie sur cette architecture :
-
-
-
-\- \*\*Module 1 – Architecture\*\* : ce document + diagrammes.
-
-\- \*\*Module 2 – Masters modernes \& Autopilot\*\* : mise en œuvre de l’onboarding.
-
-\- \*\*Module 3 – Cycle de vie des terminaux\*\* : onboarding/offboarding, compliance.
-
-\- \*\*Module 4 – MDM, MECM, co-management\*\* : activation et pilotage des workloads.
-
-\- \*\*Module 5 – Packaging applicatif\*\* : standardisation des apps.
-
-\- \*\*Module 6 – Mises à jour \& sécurité\*\* : WUfB, MECM updates, baselines.
-
-
-
-Ce README est la \*\*brique d’architecture de référence\*\* pour tout le bootcamp.
-
-
-
-=======
-# Architecture Modern Workplace – Bootcamp Ingénieur Workplace
-
-## 1. Contexte et enjeux
-
-Les usages ont basculé vers un modèle :
-- Utilisateurs distribués (télétravail, mobilité, prestataires).
-- Postes hétérogènes (Windows, macOS, BYOD parfois).
-- Exposition massive aux risques (ransomware, fuite de données, shadow IT).
-
-L’objectif de cette architecture est de définir une **plateforme de gestion des terminaux moderne et hybride**, capable de :
-- Gérer le cycle de vie complet des postes (onboarding → exploitation → maintenance → offboarding).
-- Supporter la **coexistence MECM/SCCM + Intune**.
-- Appliquer des **contrôles de sécurité Zero Trust** sans dégrader l’expérience utilisateur.
-
-Ce document sert de **référence d’architecture** pour le bootcamp et pour les labs associés.
+# 🚀 Modern Workplace Bootcamp — Intune, Autopilot, Security & Co-management
+
+Ce dépôt contient un **bootcamp complet Modern Workplace**, conçu pour reproduire le travail d’un consultant Workplace / Cloud Engineer en environnement grand compte.
+
+Il inclut :
+- 6 modules théoriques
+- 6 labs pratiques
+- Scripts PowerShell
+- Packaging Win32
+- Architecture Modern Workplace
+- Co-management MECM + Intune
+- Sécurité (WUfB, Baselines, Defender)
+
+Ce bootcamp est structuré comme une formation professionnelle destinée aux architectes Modern Workplace.
 
 ---
 
-## 2. Objectifs d’architecture
+# 📚 Contenu du Bootcamp
 
-**Objectifs techniques :**
-- Unifier la gestion des terminaux Windows et macOS via MDM (Intune) et MECM.
-- Standardiser le poste de travail (version OS, configuration, sécurité).
-- Industrialiser le déploiement (Autopilot, séquences MECM, profils MDM).
-- Centraliser la gestion des mises à jour et correctifs de sécurité.
+## 🟦 Module 1 — Architecture Modern Workplace
+- Architecture Cloud + Hybrid
+- Entra ID, Intune, Autopilot, Defender
+- Flux de provisioning
+- Diagrammes d’architecture
 
-**Objectifs métier :**
-- Réduire le time-to-serve d’un nouveau collaborateur.
-- Réduire les incidents liés au poste de travail (config, patch, applicatif).
-- Améliorer la posture de sécurité (chiffrement, durcissement, conformité).
-- Donner de la visibilité au management (indicateurs de conformité, patching, vulnérabilités).
+📄 `docs/01-architecture.md`  
+🧪 `labs/01-lab-setup.md`
 
 ---
 
-## 3. Périmètre et hypothèses
+## 🟩 Module 2 — Masters Modernes & Autopilot
+- Abandon des images WIM
+- User-driven, Self-deploying, Pre-provisioning
+- ESP, Group Tags, Dynamic Groups
+- Scripts d’import Autopilot
 
-**Périmètre :**
-- Postes **Windows 10/11** et **macOS** d’entreprise.
-- Environnement **hybride** : AD DS on-prem + Microsoft Entra ID.
-- Outils de gestion :
-  - **Microsoft Intune** (MDM/MAM, compliance, configuration, apps, updates).
-  - **MECM/SCCM** (applications, OS, updates, reporting, CMG éventuel).
-- Services de sécurité Microsoft 365 (Defender, Conditional Access, baselines).
-
-**Hors périmètre (pour ce bootcamp) :**
-- Gestion détaillée des mobiles (iOS/Android).
-- Intégration profonde avec SIEM/SOAR.
-- Scénarios multi-tenant complexes.
-
-**Hypothèses :**
-- Licences M365 E3/E5 ou équivalent (Intune, Entra ID P1/P2).
-- AD DS existant, synchronisé avec Entra ID.
-- Accès Internet des postes aux endpoints Microsoft (Intune, Autopilot, WUfB, etc.).
+📄 `docs/02-masters-autopilot.md`  
+🧪 `labs/02-autopilot.md`
 
 ---
 
-## 4. Principes de design
+## 🟦 Module 3 — Lifecycle Management
+- Compliance Policies
+- Configuration Profiles
+- Offboarding & réaffectation
+- Automatisation PowerShell
 
-**4.1 Identity-first & Zero Trust**
-
-- L’**identité** (utilisateur + device) est le point de contrôle principal.
-- Accès conditionnel basé sur :
-  - Identité (MFA, risque).
-  - Conformité du device.
-  - Localisation / contexte.
-
-**4.2 Cloud-first, hybride pragmatique**
-
-- Intune est la **cible** pour la gestion moderne.
-- MECM est conservé pour :
-  - Scénarios on-prem lourds.
-  - Migration progressive (co-management).
-- Coexistence organisée, pas de “double pilotage sauvage”.
-
-**4.3 Standardisation & industrialisation**
-
-- Standards OS (versions supportées, build cible).
-- Standards de configuration (profils, baselines).
-- Standards de packaging (naming, détection, logs).
-- Automatisation via scripts (PowerShell) et pipelines là où pertinent.
-
-**4.4 Sécurité by design**
-
-- Chiffrement systématique (BitLocker / FileVault).
-- Durcissement via baselines de sécurité.
-- Gestion centralisée des mises à jour et correctifs.
-- Principe du moindre privilège (RBAC, scopes Intune/MECM).
+📄 `docs/03-lifecycle.md`  
+🧪 `labs/03-lifecycle.md`
 
 ---
 
-## 5. Architecture cible
+## 🟩 Module 4 — Co-management (MECM + Intune)
+- Activation du co-management
+- Workloads Pilot → Production
+- CMG, Hybrid Join, bascule progressive
+- Logs MECM + Intune
 
-### 5.1 Composants principaux
-
-**On-premises :**
-- AD DS (domain controllers, DNS).
-- MECM/SCCM (site server, DB, distribution points, éventuellement CMG).
-- PKI interne (si nécessaire pour certifs Wi-Fi/VPN).
-
-**Cloud :**
-- Microsoft Entra ID (identités, Conditional Access).
-- Intune (MDM/MAM, policies, apps, updates).
-- Autopilot (enrôlement et provisioning).
-- Defender (AV, EDR, vulnérabilités).
-
-### 5.2 Vue logique
-
-- **Plan identité :**
-  - Utilisateurs et devices synchronisés AD → Entra ID.
-  - Devices en **Hybrid Join** ou **Entra Join** selon scénario.
-- **Plan gestion :**
-  - Devices Windows co-gérés (MECM + Intune) ou full Intune.
-  - Devices macOS gérés via Intune.
-- **Plan sécurité :**
-  - Conditional Access sur les apps cloud.
-  - Compliance policies comme prérequis d’accès.
-  - Baselines de sécurité appliquées par OS.
-
-*(Un diagramme logique sera ajouté dans `diagrams/architecture.mmd`.)*
+📄 `docs/04-co-management.md`  
+🧪 `labs/04-co-management.md`
 
 ---
 
-## 6. Flux clés
+## 🟦 Module 5 — Packaging Applicatif (Win32)
+- Structure standardisée
+- Scripts install/uninstall
+- Détection PowerShell
+- Logs IME
+- Automatisation du packaging
 
-**6.1 Onboarding d’un poste Windows**
-
-1. Achat / préparation du device (OEM ou réaffectation).
-2. Enregistrement dans Autopilot (hash, group tag).
-3. Utilisateur démarre le poste → OOBE → Entra ID + Autopilot.
-4. Enrôlement Intune, application des profils (config, compliance, apps).
-5. Si co-management : client MECM présent ou déployé, workloads basculés progressivement.
-
-**6.2 Onboarding d’un poste macOS**
-
-1. Enregistrement dans Intune (Apple Business Manager si dispo).
-2. Enrôlement MDM, application des profils (FileVault, Wi-Fi, VPN, apps).
-3. Application des politiques de conformité et de sécurité.
-
-**6.3 Gestion des mises à jour**
-
-- Windows : Windows Update for Business (rings) + éventuellement MECM Software Updates.
-- macOS : policies Intune + mécanismes natifs Apple.
-- Pilotage via groupes pilotes → élargissement progressif.
-
-**6.4 Offboarding**
-
-1. Désactivation du compte utilisateur.
-2. Wipe/Retire du device via Intune.
-3. Réaffectation ou sortie de parc (effacement sécurisé).
+📄 `docs/05-packaging.md`  
+🧪 `labs/05-packaging.md`
 
 ---
 
-## 7. Gouvernance et responsabilités
+## 🟩 Module 6 — Updates & Security
+- Windows Update for Business (WUfB)
+- Feature Updates
+- Security Baselines
+- Microsoft Defender
+- ASR, Firewall, Antivirus
 
-**Rôles typiques :**
-- **Équipe Workplace / Endpoint** : design, configuration Intune/MECM, packaging, patching.
-- **Équipe Identité / AD / Entra** : synchronisation, Conditional Access, RBAC.
-- **Équipe Sécurité** : baselines, durcissement, validation des politiques.
-- **Équipe Réseau** : proxy, accès aux endpoints cloud, QoS/DO.
-
-Une matrice RACI simplifiée sera documentée dans `docs/01-architecture/raci.md`.
-
----
-
-## 8. Roadmap de mise en œuvre (vue bootcamp)
-
-**Phase 0 – Préparation**
-- Clarifier périmètre, licences, prérequis réseau.
-- Standardiser les versions OS cibles.
-
-**Phase 1 – Fondations**
-- AD + Entra ID + synchronisation.
-- Intune configuré (RBAC, scopes, groupes).
-- MECM prêt pour co-management (si utilisé).
-
-**Phase 2 – Pilotes**
-- Pilote Autopilot sur un petit périmètre.
-- Pilote co-management (workloads ciblés).
-- Pilote WUfB / updates.
-
-**Phase 3 – Généralisation**
-- Extension progressive des workloads Intune.
-- Réduction de la dépendance MECM si c’est l’objectif.
-- Stabilisation, documentation, runbooks.
+📄 `docs/06-updates-security.md`  
+🧪 `labs/06-updates-security.md`
 
 ---
 
-## 9. Lien avec les labs du bootcamp
+# 🧰 Scripts & Automatisation
 
-Chaque module du bootcamp s’appuie sur cette architecture :
+Dossier `scripts/` :
+- Scripts PowerShell pour packaging
+- Scripts d’automatisation Intune
+- Scripts de nettoyage des devices
+- Scripts de diagnostic
 
-- **Module 1 – Architecture** : ce document + diagrammes.
-- **Module 2 – Masters modernes & Autopilot** : mise en œuvre de l’onboarding.
-- **Module 3 – Cycle de vie des terminaux** : onboarding/offboarding, compliance.
-- **Module 4 – MDM, MECM, co-management** : activation et pilotage des workloads.
-- **Module 5 – Packaging applicatif** : standardisation des apps.
-- **Module 6 – Mises à jour & sécurité** : WUfB, MECM updates, baselines.
+---
 
-Ce README est la **brique d’architecture de référence** pour tout le bootcamp.
->>>>>>> 6c90a0b855c6af780715adbcc61fb03c8fcc590f
+# 🗺️ Diagrammes
+
+Dossier `diagrams/` :
+- Architecture Modern Workplace
+- Flux Autopilot
+- Flux Co-management
+- Flux WUfB
+
+(Format : Mermaid ou PNG)
+
+---
+
+# 🎯 Objectifs pédagogiques
+
+À la fin du bootcamp, vous maîtrisez :
+- Le provisioning moderne (Autopilot)
+- La gestion du cycle de vie des devices
+- Le co-management MECM + Intune
+- Le packaging Win32 professionnel
+- La sécurité moderne (WUfB, Defender, Baselines)
+- Les bonnes pratiques grand compte
+
+---
+
+# 🧑‍💻 À propos de l’auteur
+
+Ce bootcamp est maintenu par **Serge**,  
+Cloud Engineer / Cloud Architect spécialisé en :
+
+- Azure, AWS, Modern Workplace Hybrid  
+- Intune, Autopilot, Defender, Entra ID  
+- Packaging applicatif Win32  
+- Co-management MECM + Intune  
+- Automatisation PowerShell  
+- Architecture sécurisée Zero Trust  
+
+Objectif : construire un portfolio professionnel orienté **grand compte** et **freelance premium**.
+
+---
+
+# 📬 Contact & Portfolio
+
+- GitHub : *(à compléter)*  
+- LinkedIn : *(à compléter)*  
+- Portfolio : *(à compléter)*  
+
+---
+
+# ✔️ Statut du projet
+🟢 **Bootcamp complet — 6 modules + 6 labs**  
+🟡 Ajout des diagrammes en cours  
+🟡 Ajout des scripts avancés en cours  
+🔵 Ouvert aux améliorations et contributions
