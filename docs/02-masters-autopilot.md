@@ -1,72 +1,216 @@
-\# Conception des Masters Modernes \& Autopilot
+\# Module 2 — Conception des Masters Modernes \& Autopilot
 
 
 
-\## 1. Objectifs
+\## 🎯 Objectifs du module
 
-\- Éliminer les images lourdes (WIM).
+\- Remplacer les images WIM traditionnelles par un provisioning moderne.
 
-\- Standardiser le provisioning via Autopilot.
+\- Standardiser le déploiement des postes via Autopilot.
 
-\- Réduire le time-to-serve.
+\- Réduire le time-to-serve et les erreurs humaines.
 
-\- Supporter les scénarios : machine neuve, réaffectation, break/fix.
-
-
-
-\## 2. Types de déploiement
-
-\- \*\*User-driven Autopilot\*\*
-
-\- \*\*Self-deploying mode\*\*
-
-\- \*\*Pre-provisioning (anciennement WhiteGlove)\*\*
+\- Supporter les scénarios : machine neuve, réaffectation, break/fix, remote work.
 
 
 
-\## 3. Composants clés
-
-\- Profil Autopilot
-
-\- ESP (Enrollment Status Page)
-
-\- Group Tags
-
-\- Dynamic Groups
-
-\- Applications Win32
-
-\- Policies Intune
+\---
 
 
 
-\## 4. Flux de provisioning
+\## 1. Pourquoi abandonner les masters traditionnels ?
 
-1\. Import du hash
+\### Limites des images WIM
 
-2\. Assignation du profil
+\- Maintenance lourde (patching, drivers, apps).
 
-3\. OOBE → Entra ID Join
+\- Risque d’incohérence entre versions.
 
-4\. Enrollment Intune
+\- Dépendance aux équipes SCCM/Infra.
 
-5\. Application des policies
-
-6\. Installation des apps
-
-7\. Compliance
+\- Déploiement lent (réseau, PXE, MDT).
 
 
 
-\## 5. Bonnes pratiques
+\### Avantages du modèle moderne
 
-\- Minimiser les apps dans ESP
+\- Provisioning cloud-first.
 
-\- Utiliser des groupes dynamiques
+\- Zero-touch IT.
 
-\- Standardiser les scripts d’import
+\- Standardisation par policies Intune.
 
-\- Tester sur un ring pilote
+\- Applications Win32 packagées proprement.
+
+\- Réduction drastique du coût opérationnel.
+
+
+
+\---
+
+
+
+\## 2. Les trois modes Autopilot
+
+\### \*\*User-driven\*\*
+
+\- Scénario le plus courant.
+
+\- L’utilisateur final réalise l’OOBE.
+
+\- Entra ID Join + Enrollment Intune.
+
+
+
+\### \*\*Self-deploying\*\*
+
+\- Pas d’utilisateur.
+
+\- Idéal pour bornes, kiosks, salles de réunion.
+
+
+
+\### \*\*Pre-provisioning (anciennement WhiteGlove)\*\*
+
+\- Préparation du poste par un technicien.
+
+\- L’utilisateur final reçoit un poste déjà configuré.
+
+
+
+\---
+
+
+
+\## 3. Composants essentiels
+
+\### \*\*Profil Autopilot\*\*
+
+\- Mode de déploiement.
+
+\- Paramètres OOBE.
+
+\- Nom du device.
+
+\- Joins : Entra ID ou Hybrid Join.
+
+
+
+\### \*\*ESP (Enrollment Status Page)\*\*
+
+\- Contrôle du provisioning.
+
+\- Bloque l’accès tant que les apps critiques ne sont pas installées.
+
+
+
+\### \*\*Group Tags\*\*
+
+\- Permettent d’automatiser l’assignation des profils.
+
+
+
+\### \*\*Groupes dynamiques\*\*
+
+Exemple :
+
+(device.devicePhysicalIds -any \_ -contains "\[OrderID]:Autopilot")
+
+
+
+\### \*\*Applications Win32\*\*
+
+\- Format .intunewin
+
+\- Détection + désinstallation + logs
+
+
+
+\---
+
+
+
+\## 4. Flux complet de provisioning Autopilot
+
+1\. Récupération du hash du device.
+
+2\. Import dans Intune.
+
+3\. Assignation du profil Autopilot.
+
+4\. OOBE → connexion utilisateur.
+
+5\. Entra ID Join.
+
+6\. Enrollment Intune.
+
+7\. Application des policies.
+
+8\. Installation des applications.
+
+9\. Validation ESP.
+
+
+
+\---
+
+
+
+\## 5. Bonnes pratiques grand compte
+
+\- Minimiser les apps dans ESP (sinon blocage).
+
+\- Utiliser des groupes dynamiques pour l’automatisation.
+
+\- Standardiser les scripts d’import.
+
+\- Tester sur un ring pilote avant production.
+
+\- Documenter les versions de drivers et firmwares.
+
+\- Utiliser des noms de devices standardisés (ex : `FR-PAR-LTP-%SERIAL%`).
+
+
+
+\---
+
+
+
+\## 6. Scripts utiles
+
+\### Récupération du hash Autopilot
+
+Install-Script -Name Get-WindowsAutopilotInfo
+
+Get-WindowsAutopilotInfo -OutputFile device.csv
+
+
+
+\### Import automatique dans Intune
+
+(à utiliser dans un environnement pro)
+
+Import-AutopilotCSV -csvFile device.csv
+
+
+
+\---
+
+
+
+\## 7. Validation
+
+\- Device visible dans \*\*Devices → Windows → Windows enrollment → Devices\*\*.
+
+\- Profil assigné automatiquement.
+
+\- ESP passe au vert.
+
+\- Device compliant après installation des policies.
+
+
+
+
 
 
 
