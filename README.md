@@ -16,6 +16,8 @@
 🔗 LinkedIn : https://www.linkedin.com/in/serge-ngindu/  
 📂 Portfolio GitHub : https://github.com/Serge80-cld  
 
+📄 [Télécharger mon CV](docs/CV-Serge.pdf)
+
 
 
 
