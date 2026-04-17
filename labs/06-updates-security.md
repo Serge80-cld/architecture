@@ -4,7 +4,7 @@
 
 
 
-\## 🎯 Objectifs du lab
+\##  Objectifs du lab
 
 \- Configurer Windows Update for Business (WUfB).
 
@@ -320,11 +320,11 @@ Fichiers clés :
 
 \## 10. Fin du bootcamp
 
-🎉 Félicitations — tu as terminé \*\*tous les labs du bootcamp Modern Workplace\*\*.
 
 
 
-Ton dépôt contient maintenant :
+
+ce depôt contient 
 
 \- 6 modules complets  
 
