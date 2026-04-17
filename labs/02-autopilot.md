@@ -2,7 +2,7 @@
 
 
 
-\## 🎯 Objectifs du lab
+\##  Objectifs du lab
 
 \- Récupérer le hash matériel d’un device Windows.
 
@@ -78,7 +78,7 @@ Model
 
 
 
-📌 Important : ce hash est unique et obligatoire pour Autopilot.
+ Important : ce hash est unique et obligatoire pour Autopilot.
 
 
 
