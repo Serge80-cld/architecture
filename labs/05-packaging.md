@@ -2,7 +2,7 @@
 
 
 
-\## 🎯 Objectifs du lab
+\##  Objectifs du lab
 
 \- Créer un package Win32 (.intunewin) complet.
 
