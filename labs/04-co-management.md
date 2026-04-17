@@ -2,7 +2,7 @@
 
 
 
-\## 🎯 Objectifs du lab
+\##  Objectifs du lab
 
 \- Activer le co-management sur un device Windows.
 
@@ -282,7 +282,7 @@ Start-Process "ms-settings:workplace"
 
 \## 9. Prochain module
 
-➡️ \*\*Module 5 — Packaging applicatif (Win32, detection rules, logs)\*\*  
+ \*\*Module 5 — Packaging applicatif (Win32, detection rules, logs)\*\*  
 
 Nous allons créer :
 
