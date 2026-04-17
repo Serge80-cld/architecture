@@ -2,7 +2,7 @@
 
 
 
-\## 🎯 Objectifs du lab
+\##  Objectifs du lab
 
 \- Créer et appliquer des règles de conformité (Compliance Policies).
 
@@ -316,7 +316,7 @@ dsregcmd /status
 
 \## 9. Prochain module
 
-➡️ \*\*Module 4 — Co-management (MECM + Intune)\*\*  
+ \*\*Module 4 — Co-management (MECM + Intune)\*\*  
 
 Nous allons créer :
 
