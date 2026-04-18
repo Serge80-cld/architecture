@@ -2,7 +2,7 @@
 
 
 
-\## 🎯 Objectifs du module
+\## Objectifs du module
 
 \- Comprendre l’architecture du co-management.
 
@@ -250,7 +250,7 @@
 
 \### Recommandation
 
-➡️ Migrer progressivement vers \*\*WUfB\*\* pour simplifier l’architecture.
+Migrer progressivement vers \*\*WUfB\*\* pour simplifier l’architecture.
 
 
 
