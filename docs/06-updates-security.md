@@ -2,7 +2,7 @@
 
 
 
-\## 🎯 Objectifs du module
+\## Objectifs du module
 
 \- Comprendre la stratégie moderne de mise à jour Windows.
 
