@@ -2,7 +2,7 @@
 
 
 
-\## 🎯 Objectifs du module
+\##  Objectifs du module
 
 \- Comprendre le cycle de vie complet d’un device moderne.
 
@@ -326,7 +326,7 @@ Les bonnes pratiques de sécurité
 
 9\. Prochain module
 
-➡️ Module 4 — Co-management (MECM + Intune)  
+Module 4 — Co-management (MECM + Intune)  
 
 Nous allons créer :
 
