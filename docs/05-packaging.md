@@ -2,7 +2,7 @@
 
 
 
-\## 🎯 Objectifs du module
+\## Objectifs du module
 
 \- Comprendre le packaging moderne dans Intune.
 
@@ -84,7 +84,7 @@ Paramètres :
 
 Résultat :
 
-➡️ un fichier `.intunewin` prêt à être importé dans Intune.
+un fichier `.intunewin` prêt à être importé dans Intune.
 
 
 
@@ -278,7 +278,7 @@ Utiliser des groupes dynamiques par OS / version.
 
 10\. Prochain module
 
-➡️ Module 6 — Updates \& Security (WUfB, Baselines, Defender)  
+Module 6 — Updates \& Security (WUfB, Baselines, Defender)  
 
 Nous allons créer :
 
