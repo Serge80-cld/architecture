@@ -2,7 +2,7 @@
 
 
 
-\## 🎯 Objectifs du module
+\##  Objectifs du module
 
 \- Remplacer les images WIM traditionnelles par un provisioning moderne.
 
